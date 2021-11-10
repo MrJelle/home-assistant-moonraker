@@ -1,4 +1,4 @@
-# Download this file and open it in your text editor of choice, or copy from "-platform rest" until the end into your text editor of choice, then find and replace:
+# Download this file and open it in your text editor of choice, or copy from "-platform: rest" until the end into your text editor of choice, then find and replace:
 #
 # - PRINTER_NAME with the name of the printer instance used in naming the sensors and camera,
 # - PRINTER_FRIENDLY_NAME with the name to be displayed in dashboard,
@@ -6,8 +6,9 @@
 # - SENSOR_INTERVAL with the interval in seconds to update the sensors,
 # - PREVIEW_INTERVAL with the interval in seconds to update the thumbnail image.
 #
-# Then copy the modified text into your Home Assistant's configuration file, or the appropriate separated .yaml file (I used sensors.yaml).
+# Then copy the modified text into your Home Assistant's sensors YAML file.
 
+#sensor: !include sensors.yaml
   - platform: rest
     name: PRINTER_NAME_klippy
     resource: "http://PRINTER_IP:7125/server/info"

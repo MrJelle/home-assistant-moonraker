@@ -1,0 +1,16 @@
+# Download this file and open it in your text editor of choice, or copy from "-platform: generic" until the end into your text editor of choice, then find and replace:
+#
+# - PRINTER_NAME with the name of the printer instance used in naming the sensors and camera,
+# - HOME_ASSISTANT_IP with the IP address of Home Assistant instance,
+# - PREVIEW_INTERVAL with the interval in seconds to update the thumbnail image.
+#
+# Then copy the modified text into your Home Assistant's cameras YAML file.
+
+- platform: generic
+  name: PRINTER_NAME_gcode_preview
+  still_image_url: >
+    {% if is_state('sensor.PRINTER_NAME_state','standby') or is_state('sensor.PRINTER_NAME_state','unavailable') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png
+    {% else %} {{ states('sensor.PRINTER_NAME_thumbnail') }}
+    {% endif %}
+  scan_interval: PREVIEW_INTERVAL
+  content_type: image/png
