@@ -4,14 +4,16 @@
 # - HOME_ASSISTANT_IP with the IP address of Home Assistant instance,
 # - PREVIEW_INTERVAL with the interval in seconds to update the thumbnail image.
 #
-# By default, an empthy thumbnail file on the Home Assistant machine will be displayed when a machine is on standby (powered on and connected but inactive), or unavailable (not connected to Klipper). Remove " or is_state('sensor.PRINTER_NAME_state','unavailable')" if you only want to show the empty thumbnail image when the printer is on standby. A transparent 300x300 PNG file called "emptythumbnail.png" is provided in the GitHub repository.
+# By default, an empty thumbnail file on the Home Assistant machine will be displayed when a machine is on "standby" (powered on and connected but inactive), or (optionally, a different image) when "shutdown" (not connected to Klipper), or (optionally, a different image) when "printing", but no thumbnail path was found. A transparent 300x300 PNG file called "emptythumbnail.png" is provided in the GitHub repository.
 #
 # Then copy the modified text into your Home Assistant's cameras YAML file.
 
 - platform: generic
   name: PRINTER_NAME_gcode_preview
   still_image_url: >
-    {% if is_state('sensor.PRINTER_NAME_state','standby') or is_state('sensor.PRINTER_NAME_state','unavailable') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png
+	{% if is_state('sensor.PRINTER_NAME_klippy_state','shutdown') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is not connected.
+    {% elif is_state('sensor.PRINTER_NAME_state','standby') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is connected but not printing (no G-Code file loaded).
+	{% elif is_state('sensor.PRINTER_NAME_state','printing') and not states.sensor.PRINTER_NAME_preview.attributes["relative_path"].endswith(".png") %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is printing, but no thumbnail was found.
     {% else %} {{ states('sensor.PRINTER_NAME_thumbnail') }}
     {% endif %}
   scan_interval: PREVIEW_INTERVAL

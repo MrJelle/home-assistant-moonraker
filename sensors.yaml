@@ -85,7 +85,7 @@
   - platform: rest
     scan_interval: PREVIEW_INTERVAL
     name: PRINTER_NAME_preview
-    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print')).replace(' ', '%20')|replace('+', '%2B') }} "
+    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print'))| urlencode }}"
     value_template: "1"
     json_attributes_path: "$.result.thumbnails.[1]"
     json_attributes:
@@ -97,4 +97,4 @@
   - platform: template
     sensors:
       PRINTER_NAME_thumbnail:
-        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1]|join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path']|replace(' ', '%20')|replace('+', '%2B') }}"
+        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1]|join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path']| urlencode  }}"
