@@ -11,9 +11,13 @@
 - platform: generic
   name: PRINTER_NAME_gcode_preview
   still_image_url: >
-    {% if is_state('sensor.PRINTER_NAME_klippy_state','shutdown') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is not connected.
-    {% elif is_state('sensor.PRINTER_NAME_state','standby') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is connected but not printing (no G-Code file loaded).
-    {% elif is_state('sensor.PRINTER_NAME_state','printing') and not states.sensor.PRINTER_NAME_preview.attributes["relative_path"].endswith(".png") %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png		# Image to display when printer is printing, but no thumbnail was found.
+    # Image to display when printer is not connected.
+    {% if is_state('sensor.PRINTER_NAME_klippy_state','shutdown') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png
+	# Image to display when printer is connected but not printing (no G-Code file loaded).
+    {% elif is_state('sensor.PRINTER_NAME_state','standby') %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png
+	# Image to display when printer is printing, but no thumbnail was found.
+    {% elif is_state('sensor.PRINTER_NAME_state','printing') and not states.sensor.PRINTER_NAME_preview.attributes["relative_path"].endswith(".png") %} http://HOME_ASSISTANT_IP:8123/local/emptythumbnail.png
+	# Otherwise, display thumbnail URL from the PRINTER_NAME_preview sensor.
     {% else %} {{ states('sensor.PRINTER_NAME_thumbnail') }}
     {% endif %}
   scan_interval: PREVIEW_INTERVAL

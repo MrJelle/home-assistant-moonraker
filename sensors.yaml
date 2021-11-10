@@ -8,7 +8,6 @@
 #
 # Then copy the modified text into your Home Assistant's sensors YAML file.
 
-#sensor: !include sensors.yaml
   - platform: rest
     name: PRINTER_NAME_klippy
     resource: "http://PRINTER_IP:7125/server/info"
@@ -65,27 +64,27 @@
         device_class: temperature
         unit_of_measurement: "°C"
       PRINTER_NAME_state:
-        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['state']}}"
+        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['state'] }}"
       PRINTER_NAME_current_print:
-        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename']}}"
+        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'] }}"
       PRINTER_NAME_current_progress:
         value_template: "{{ (states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress'])*100  | round(1) }}"
         unit_of_measurement: "%"
       PRINTER_NAME_print_time:
-        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration'] |timestamp_custom('%H:%M:%S', 0)}}"
+        value_template: "{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration'] |timestamp_custom('%H:%M:%S', 0) }}"
       PRINTER_NAME_time_remaining:
-        value_template: "{{ (((states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']/states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']- states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']) if states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']>0 else 0)) | timestamp_custom('%H:%M:%S', 0)}}"
+        value_template: "{{ (((states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']/states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']- states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']) if states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']>0 else 0)) | timestamp_custom('%H:%M:%S', 0) }}"
       PRINTER_NAME_eta:
-        value_template: "{{ (as_timestamp(now())+2*60*60+((states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']/states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']- states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']) if states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']>0 else 0)) | timestamp_custom('%H:%M:%S', 0)}}"
+        value_template: "{{ (as_timestamp(now())+2*60*60+((states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']/states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']- states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']) if states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']>0 else 0)) | timestamp_custom('%H:%M:%S', 0) }}"
       PRINTER_NAME_nozzletemp:
-        value_template: '{{[( states.sensor.PRINTER_NAME_sensor.attributes["extruder"]["temperature"]  | float | round(1)| string)," / ",( states.sensor.PRINTER_NAME_sensor.attributes["extruder"]["target"]  | float | round(1)| string)]|join}}'
+        value_template: "{{ [( states.sensor.PRINTER_NAME_sensor.attributes['extruder']['temperature']  | float | round(1)| string),' / ',( states.sensor.PRINTER_NAME_sensor.attributes['extruder']['target']  | float | round(1)| string)] | join }}"
       PRINTER_NAME_bedtemp:
-        value_template: '{{[( states.sensor.PRINTER_NAME_sensor.attributes["heater_bed"]["temperature"]  | float | round(1)| string)," / ",( states.sensor.PRINTER_NAME_sensor.attributes["heater_bed"]["target"]  | float | round(1)| string)]|join}}'
+        value_template: "{{ [( states.sensor.PRINTER_NAME_sensor.attributes['heater_bed']['temperature']  | float | round(1)| string),' / ',( states.sensor.PRINTER_NAME_sensor.attributes['heater_bed']['target']  | float | round(1)| string)] | join }}"
 
   - platform: rest
     scan_interval: PREVIEW_INTERVAL
     name: PRINTER_NAME_preview
-    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print'))| urlencode }}"
+    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print')) | urlencode }}"
     value_template: "1"
     json_attributes_path: "$.result.thumbnails.[1]"
     json_attributes:
@@ -97,4 +96,4 @@
   - platform: template
     sensors:
       PRINTER_NAME_thumbnail:
-        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1]|join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path']| urlencode  }}"
+        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1] | join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path'] | urlencode }}"
