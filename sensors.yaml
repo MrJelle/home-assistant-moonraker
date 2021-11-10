@@ -1,10 +1,10 @@
-# Copy from "-platform rest" onward into your text editor of choice, then find and replace:
+# Download this file and open it in your text editor of choice, or copy from "-platform rest" until the end into your text editor of choice, then find and replace:
 #
 # - PRINTER_NAME with the name of the printer instance used in naming the sensors and camera,
 # - PRINTER_FRIENDLY_NAME with the name to be displayed in dashboard,
 # - PRINTER_IP with the IP address of the Moonraker and Mainsail instance,
-# - SCAN_FREQUENCY with the interval in seconds to update the sensors,
-# - SCAN_FREQUENCY_PREVIEW with the interval in seconds to update the thumbnail image.
+# - SENSOR_INTERVAL with the interval in seconds to update the sensors,
+# - PREVIEW_INTERVAL with the interval in seconds to update the thumbnail image.
 #
 # Then copy the modified text into your Home Assistant's configuration file, or the appropriate separated .yaml file (I used sensors.yaml).
 
@@ -23,12 +23,12 @@
         friendly_name: "PRINTER_FRIENDLY_NAME Klippy connected"
         value_template: "{{ states.sensor.PRINTER_NAME_klippy.attributes['klippy_connected'] }}"
       PRINTER_NAME_klippy_state:
-        friendly_name: "PRINTER_FRIENDLY_NAME Klippy state'
+        friendly_name: "PRINTER_FRIENDLY_NAME Klippy state"
         value_template: "{{ states.sensor.PRINTER_NAME_klippy.attributes['klippy_state'] }}"
 
   - platform: rest
     name: PRINTER_NAME_sensor
-    scan_interval: SCAN_FREQUENCY
+    scan_interval: SENSOR_INTERVAL
     resource: "http://PRINTER_IP:7125/printer/objects/query?heater_bed&extruder&print_stats&toolhead&display_status&virtual_sdcard"
     value_template: "1"
     json_attributes_path: "$.result.status"
@@ -41,7 +41,7 @@
       - virtual_sdcard
 
   - platform: template
-    scan_interval: SCAN_FREQUENCY
+    scan_interval: SENSOR_INTERVAL
     sensors:
       PRINTER_NAME_hotend_target:
         friendly_name: "PRINTER_FRIENDLY_NAME hot end target"
@@ -77,14 +77,14 @@
       PRINTER_NAME_eta:
         value_template: "{{ (as_timestamp(now())+2*60*60+((states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']/states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']- states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['print_duration']) if states.sensor.PRINTER_NAME_sensor.attributes['display_status']['progress']>0 else 0)) | timestamp_custom('%H:%M:%S', 0)}}"
       PRINTER_NAME_nozzletemp:
-        value_template: "{{[( states.sensor.PRINTER_NAME_sensor.attributes['extruder']['temperature']  | float | round(1)| string),' / ',( states.sensor.PRINTER_NAME_sensor.attributes['extruder']['target']  | float | round(1)| string)]|join}}"
+        value_template: '{{[( states.sensor.PRINTER_NAME_sensor.attributes["extruder"]["temperature"]  | float | round(1)| string)," / ",( states.sensor.PRINTER_NAME_sensor.attributes["extruder"]["target"]  | float | round(1)| string)]|join}}'
       PRINTER_NAME_bedtemp:
-        value_template: "{{[( states.sensor.PRINTER_NAME_sensor.attributes['heater_bed']['temperature']  | float | round(1)| string),' / ',( states.sensor.PRINTER_NAME_sensor.attributes['heater_bed']['target']  | float | round(1)| string)]|join}}"
+        value_template: '{{[( states.sensor.PRINTER_NAME_sensor.attributes["heater_bed"]["temperature"]  | float | round(1)| string)," / ",( states.sensor.PRINTER_NAME_sensor.attributes["heater_bed"]["target"]  | float | round(1)| string)]|join}}'
 
   - platform: rest
-    scan_interval: SCAN_FREQUENCY_PREVIEW
+    scan_interval: PREVIEW_INTERVAL
     name: PRINTER_NAME_preview
-    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print')).replace(' ', '%20') }} "
+    resource_template: "http://PRINTER_IP:7125/server/files/metadata?filename={{ states(('sensor.PRINTER_NAME_current_print')).replace(' ', '%20')|replace('+', '%2B') }} "
     value_template: "1"
     json_attributes_path: "$.result.thumbnails.[1]"
     json_attributes:
@@ -96,4 +96,4 @@
   - platform: template
     sensors:
       PRINTER_NAME_thumbnail:
-        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1]|join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path'] }}"
+        value_template: "http://PRINTER_IP:7125/server/files/gcodes{{ states.sensor.PRINTER_NAME_sensor.attributes['print_stats']['filename'].split('/')[0:-1]|join('/') + '/' + states.sensor.PRINTER_NAME_preview.attributes['relative_path']|replace(' ', '%20')|replace('+', '%2B') }}"
