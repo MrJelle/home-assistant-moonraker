@@ -4,6 +4,8 @@
 # - HOME_ASSISTANT_IP with the IP address of Home Assistant instance,
 # - PREVIEW_INTERVAL with the interval in seconds to update the thumbnail image.
 #
+# By default, an empthy thumbnail file on the Home Assistant machine will be displayed when a machine is on standby (powered on and connected but inactive), or unavailable (not connected to Klipper). Remove " or is_state('sensor.PRINTER_NAME_state','unavailable')" if you only want to show the empty thumbnail image when the printer is on standby. A transparent 300x300 PNG file called "emptythumbnail.png" is provided in the GitHub repository.
+#
 # Then copy the modified text into your Home Assistant's cameras YAML file.
 
 - platform: generic
